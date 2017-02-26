@@ -11,7 +11,7 @@ download from https://www.visualstudio.com/downloads/.
 We choose the matlab model file and the prototxt file。 in matlab ,fter-rcnn  divided into two parts, 
 rpn_net and faster-rcnn_net;thus there are two models and two prototxt file in matlab;these project is 
 just a test project,if you want to train your own model , prehaps you need do it on matlab-faster-rcnn. 
-and put the model in these project for test;
+and put the model in these project for test;you can download the model:http://pan.baidu.com/s/1dF88JvV
 
 #About mean_images
  mean_images is converte from the model.mat in matlab . can save the mean_image by command imwrite(uint8(proposal_detection_model.image_means),'mean_image.bmp') or load the model.mat and save it.
@@ -25,11 +25,12 @@ and all of the source file and cu file in /src/caffe/ to libcaffe project and re
 it's a little different from the matlab version .and it cost much time,maybe we can optimize the OpenCV parts
  
 #Aboud 3rdparty
-i have sorted out the thrid party depenendent library files in faster_3rdparty ,it is a release version , you 
-can put  it in the caffe-master folder. and we should create a new porject to test faster-rcnn in 
-caffe-master/windows/folder.As you can see, you can compile the project directly. What you need to do is only
-change some necessary paths. All the code has been tested and the test results are also included. Wish it can 
-help you .if it's helpful to you ,please give me a star thanks~
+i have sorted out the thrid party depenendent library files in faster_3rdparty,http://pan.baidu.com/s/1qYttnsS
+password:d0ud,it is a release version , you can put it in the caffe-master folder. and we should create a new 
+porject to test faster-rcnn in caffe-master/windows/folder.As you can see, you can compile the project 
+directly. What you need to do is only change some necessary paths. All the code has been tested and the test 
+results are also included.
+Wish it can help you .if it's helpful to you ,please give me a star thanks~
 
 
   
