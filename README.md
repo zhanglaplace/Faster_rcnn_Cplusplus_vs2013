@@ -7,14 +7,14 @@ the project is according to the http://blog.csdn.net/oYangZi12/article/details/5
 You need a VC compiler to build these project, Visual Studio 2013 Community should be fine. You can 
 download from https://www.visualstudio.com/downloads/.
 
-#About Models
-We choose the matlab model file and the prototxt file。 in matlab ,fter-rcnn  divided into two parts, 
-rpn_net and faster-rcnn_net;thus there are two models and two prototxt file in matlab;these project is 
-just a test project,if you want to train your own model , prehaps you need do it on matlab-faster-rcnn. 
-and put the model in these project for test;you can download the model:http://pan.baidu.com/s/1dF88JvV
+#About Model
+We choose the matlab model file and the prototxt file. in matlab ,faster-rcnn  divided into two parts, 
+rpn_net and faster-rcnn_net;thus there are two models and two prototxt files in matlab;these project is 
+just a test demo,if you want to train your own model , prehaps you need do it on matlab-faster-rcnn. 
+and put the model in these project,you can download the model:http://pan.baidu.com/s/1dF88JvV
 
 #About mean_images
- mean_images is converte from the model.mat in matlab . can save the mean_image by command imwrite(uint8(proposal_detection_model.image_means),'mean_image.bmp') or load the model.mat and save it.
+ mean_images is converte from the model.mat in matlab . you can save the mean_image by command imwrite(uint8(proposal_detection_model.image_means),'mean_image.bmp') or load the model.mat and save it.
 
 #About Caffe 
 i use the Microsoft version , https://github.com/Microsoft/caffe . if you want to use the faster-rcnn  you
