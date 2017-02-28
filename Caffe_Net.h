@@ -44,7 +44,7 @@ public:
 	void filter_boxes(Mat& pre_box, Mat& score, vector<aboxes>& box);
 	void nms(vector<aboxes>input_boxes, double overlap, vector<int>&vPick, int&nPick);
 	void boxes_filter(vector<aboxes>&box_, int nPick, vector<aboxes>box, vector<int>vPick);
-	std::map<int, vector<Rect> > fcnn_detect(vector<aboxes>&box);
+	std::map<int, vector<aboxes> > fcnn_detect(vector<aboxes>&box);
 };
 
 

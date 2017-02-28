@@ -47,22 +47,22 @@ Mat  Caffe_Net::fasterrcnn(Mat src){
 	src_image = src.clone();
 	process(src);
 	vector<aboxes>abox = forward();
-	std::map<int, vector<Rect> >result = fcnn_detect(abox);
+	std::map<int, vector<aboxes> >result = fcnn_detect(abox);
 	return src_image;
 }
 
 
 
 /*************************************************
-// Method: fcnn_decetc
+// Method: fcnn_detect
 // Description: fcnn_net and test img
 // Author: zhanglaplace
-// Date: 2017/02/26
+// Date: 2017/02/28
 // Returns: fg index and location
 // Parameter: 300 proposal rect and score
-// History:
+// History:2017/02/26
 *************************************************/
-std::map<int, vector<Rect> > Caffe_Net::fcnn_detect(vector<aboxes>&box){
+std::map<int, vector<aboxes> > Caffe_Net::fcnn_detect(vector<aboxes>&box){
 	float scales = im_scale_;
 	Mat anchors(box.size(), 4, CV_32FC1);
 	fcnn_net_->blob_by_name("data")->CopyFrom(*rpn_net_->blob_by_name("conv5").get(), false, true);
@@ -72,8 +72,8 @@ std::map<int, vector<Rect> > Caffe_Net::fcnn_detect(vector<aboxes>&box){
 	float* input_data = input_layer->mutable_cpu_data();
 	int num = 0;
 	vector<aboxes>::iterator iter;
-	for (iter = box.begin(); iter != box.end();iter++){
-		
+	for (iter = box.begin(); iter != box.end(); iter++){
+
 		//input image rect
 		anchors.at<float>(num, 0) = iter->x1;
 		anchors.at<float>(num, 1) = iter->y1;
@@ -83,10 +83,10 @@ std::map<int, vector<Rect> > Caffe_Net::fcnn_detect(vector<aboxes>&box){
 
 
 		//map to net_input_size
-		iter->x1 = (iter->x1 - 1) * scales ;
-		iter->y1 = (iter->y1 - 1) * scales ;
-		iter->x2 = (iter->x2 - 1) * scales ;
-		iter->y2 = (iter->y2 - 1) * scales ;
+		iter->x1 = (iter->x1 - 1) * scales;
+		iter->y1 = (iter->y1 - 1) * scales;
+		iter->x2 = (iter->x2 - 1) * scales;
+		iter->y2 = (iter->y2 - 1) * scales;
 		input_data[num * 5 + 0] = iter->score;
 		input_data[num * 5 + 1] = iter->x1;
 		input_data[num * 5 + 2] = iter->y1;
@@ -101,26 +101,26 @@ std::map<int, vector<Rect> > Caffe_Net::fcnn_detect(vector<aboxes>&box){
 	//std::cout << box_deltas->num() << " " << box_deltas->channels() << " " << box_deltas->height() << " " << box_deltas->width() << std::endl;
 	for (int i = 0; i < box_deltas->num(); i++)
 	{
-		
+
 		for (int j = 0; j < box_deltas->channels(); j++)
 		{
 			box_delta.at<float>(i, j) = box_deltas->data_at(i, j, 0, 0);
 		}
 	}
 	Mat output_score(scores->num(), scores->channels() - 1, CV_32FC1);
-	for (int i = 0; i < scores->num();i++){
-		for (int j = 1; j < scores->channels();j++){
+	for (int i = 0; i < scores->num(); i++){
+		for (int j = 1; j < scores->channels(); j++){
 			output_score.at<float>(i, j - 1) = scores->data_at(i, j, 0, 0);
 		}
 	}
 	Mat pred_boxes = bbox_tranform_inv(anchors, box_delta, "rcnn");
 
-	std::map<int, vector<Rect>> classer;
+	std::map<int, vector<aboxes> > classer;
 	////////20为类别数///////
 	for (int i = 0; i < 20; i++)
 	{
-		vector<Rect> r;
-		vector<aboxes> box;
+		vector<aboxes> final_box;
+		vector<aboxes> output_box;
 		for (int j = 0; j < pred_boxes.rows; j++)
 		{
 			aboxes tmp;
@@ -129,75 +129,35 @@ std::map<int, vector<Rect> > Caffe_Net::fcnn_detect(vector<aboxes>&box){
 			tmp.x2 = pred_boxes.at<float>(j, i * 4 + 2);
 			tmp.y2 = pred_boxes.at<float>(j, i * 4 + 3);
 			tmp.score = output_score.at<float>(j, i);
-			box.push_back(tmp);
+			output_box.push_back(tmp);
 		}
 		vector<int> vPick(box.size());
 		int nPick;
-		nms(box, conf.num_overlap_thres_fcnn, vPick, nPick);
+		nms(output_box, conf.num_overlap_thres_fcnn, vPick, nPick);
 		for (int i = 0; i < nPick; i++)
 		{
-			if (box[vPick[i]].score > conf.test_fcnn_thres_score)
-			{
-				Rect rt;
-				rt.x = box[vPick[i]].x1;
-				rt.y = box[vPick[i]].y1;
-				rt.width = box[vPick[i]].x2 - box[vPick[i]].x1 + 1;
-				rt.height = box[vPick[i]].y2 - box[vPick[i]].y1 + 1;
-				r.push_back(rt);
+			if (output_box[vPick[i]].score > conf.test_fcnn_thres_score){
+				final_box.push_back(output_box[vPick[i]]);
 			}
 		}
-		classer.insert(std::pair<int, vector<Rect>>(i, r));
+		classer.insert(std::pair<int, vector<aboxes>>(i, final_box));
 	}
+	char strTemp[100];
 	for (int i = 0; i < 20; i++)
 	{
 		if (!classer[i].empty())
 		{
 			for (auto ite = classer[i].begin(); ite != classer[i].end(); ite++)
 			{
-				rectangle(src_image, *ite, colortable[i],2,8,0);
-				putText(src_image, classname[i], Point(ite->x, min(ite->y+10,src_image.rows)), CV_FONT_HERSHEY_SIMPLEX, 0.5, colortable[i], 2, 2);
+				aboxes test = *ite;
+				rectangle(src_image, Rect(test.x1, test.y1, test.x2 - test.x1 + 1, test.y2 - test.y1 + 1), colortable[i], 2 + test.score * 2, 4, 0);
+				sprintf_s(strTemp, "%s:%.3f", classname[i], test.score);
+				putText(src_image, strTemp, Point(test.x1 + 2, min((int)test.y1 + 2, src_image.rows - 1)), FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(0, 0, 0)/*colortable[i]*/, 1, 2);
 			}
 		}
 	}
-	/*
-	std::map<int, vector<aboxes> >classes;
-	std::cout << pred_boxes.rows << " " << pred_boxes.cols << " " << std::endl;
-	for (int i = 0; i < 20; i++){
-		vector<aboxes>final_box;
-		vector<aboxes>output_box;
-		for (int j = 0; j < pred_boxes.rows; j++){
-			aboxes temp;
-			temp.x1 = pred_boxes.at<float>(j, i * 4 + 0);
-			temp.y1 = pred_boxes.at<float>(j, i * 4 + 1);
-			temp.x2 = pred_boxes.at<float>(j, i * 4 + 2);
-			temp.y2 = pred_boxes.at<float>(j, i * 4 + 3);
-			temp.score = output_score.at<float>(j, i);
-			output_box.push_back(temp);
-		}
-		vector<int> vPick(output_box.size());
-		int nPick = 0;
-		nms(output_box, conf.num_overlap_thres_fcnn, vPick, nPick);
-		for (int i = 0; i < nPick;i++){
-			if (output_box[vPick[i]].score > conf.test_fcnn_thres_score){
-				final_box.push_back(output_box[vPick[i]]);
-			}
-		}
-		classes.insert(std::pair<int, vector<aboxes> >(i, final_box));
-	}
-	for (int i = 0; i < 20; i++){
-		if (!classes[i].empty()){
-			for (auto iter = classes[i].begin(); iter != classes[i].end(); iter++){
-				aboxes test = *iter;
-				rectangle(src_image,Rect(test.x1,test.y1,test.x2-test.x1+1,test.y2-test.y1+1), colortable[i]);
-				putText(src_image, classname[i], Point(test.x1, test.y1), CV_FONT_HERSHEY_SIMPLEX, 0.5, colortable[i], 2, 2);
-				putText(src_image, classname[i], Point(test.x1 + 20, test.y1), CV_FONT_HERSHEY_SIMPLEX, 0.5, colortable[i], 2, 2);
-			}
-		}
-	}
-	*/
 	return classer;
 }
-
 
 /*************************************************
 // Method: aboxcmp
