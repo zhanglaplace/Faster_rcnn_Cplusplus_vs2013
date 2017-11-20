@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "Caffe_Net.h"
 using namespace std;
 
@@ -17,14 +18,17 @@ const string mean_image_file = "./models/mean_image.bmp";
 int main(){
 
 	Caffe_Net net_(rpn_prototxt_file, rpn_model_file, fcnn_prototxt_file, fcnn_model_file, mean_image_file);
-	string test_file = "./test/test.jpg";
-	Mat img = imread(test_file.c_str());
-	if (img.empty()){
-		cout << "input image error;";
-		return -1;
+	ifstream fin("testImage.txt",std::ios_base::in);
+	string lines;
+	while(getline(fin,lines)){
+		Mat img = imread(lines.c_str());
+		if (img.empty()){
+			cout << "input image error;"<<lines<<endl;
+			continue;
+		}
+		Mat dst = net_.fasterrcnn(img);
+		imshow("result", dst);
+		cvWaitKey(0);
 	}
-	Mat dst = net_.fasterrcnn(img);
-	imshow("showImage", dst);
-	cvWaitKey(0);
 	return 0;
 }

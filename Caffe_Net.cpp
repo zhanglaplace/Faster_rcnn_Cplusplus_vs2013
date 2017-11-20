@@ -1,12 +1,13 @@
 #include "Caffe_Net.h"
 #include <fstream>
 
-cv::Scalar colortable[20] = { cv::Scalar(0, 0, 0), cv::Scalar(0, 0, 125),
+const int classNum = 20;
+cv::Scalar colortable[classNum] = { cv::Scalar(0, 0, 0), cv::Scalar(0, 0, 125),
 cv::Scalar(0, 125, 125), cv::Scalar(125, 125, 125), cv::Scalar(125, 0, 0), cv::Scalar(125, 125, 0), cv::Scalar(0, 125, 0), cv::Scalar(125, 0, 125),
 cv::Scalar(0, 0, 255), cv::Scalar(0, 255, 255), cv::Scalar(255, 255, 255), cv::Scalar(255, 0, 0), cv::Scalar(255, 255, 0), cv::Scalar(0, 255, 0),
 cv::Scalar(255, 0, 255), cv::Scalar(0, 255, 100), cv::Scalar(0, 0, 100),
 cv::Scalar(255, 0, 100), cv::Scalar(255, 255, 100), cv::Scalar(100, 100, 100) };
-string classname[20] = { "aeroplane", "bike", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow",
+string classname[classNum] = { "aeroplane", "bike", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow",
 "diningtable", "dog", "horse", "motobike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor" };
 
 
@@ -21,11 +22,15 @@ string classname[20] = { "aeroplane", "bike", "bird", "boat", "bottle", "bus", "
 // History:
 *************************************************/
 Caffe_Net::Caffe_Net(const string rpn_prototxt, const string rpn_model, const string fcnn_prototxt, const string fcnn_model, const string mean_image_file){
+#ifndef CPU_ONLY
 	Caffe::SetDevice(0);
+	Caffe::set_mode(Caffe::GPU);
+#else
 	Caffe::set_mode(Caffe::CPU);
-	rpn_net_ = shared_ptr<Net <float> >(new Net<float>(rpn_prototxt, caffe::TEST));
+#endif
+	rpn_net_.reset(new Net<float>(rpn_prototxt, caffe::TEST));
 	rpn_net_->CopyTrainedLayersFrom(rpn_model);
-	fcnn_net_ = shared_ptr<Net <float> >(new Net<float>(fcnn_prototxt, caffe::TEST));
+	fcnn_net_.reset(new Net<float>(fcnn_prototxt, caffe::TEST));
 	fcnn_net_->CopyTrainedLayersFrom(fcnn_model);
 	CHECK_EQ(rpn_net_->num_inputs(), 1) << " Network should have exactly one input.";
 	CHECK_EQ(rpn_net_->num_outputs(), 2) << "Network should have exactly two inputs.";
@@ -117,7 +122,7 @@ std::map<int, vector<aboxes> > Caffe_Net::fcnn_detect(vector<aboxes>&box){
 
 	std::map<int, vector<aboxes> > classer;
 	////////20为类别数///////
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < classNum; i++)
 	{
 		vector<aboxes> final_box;
 		vector<aboxes> output_box;
@@ -143,7 +148,7 @@ std::map<int, vector<aboxes> > Caffe_Net::fcnn_detect(vector<aboxes>&box){
 		classer.insert(std::pair<int, vector<aboxes>>(i, final_box));
 	}
 	char strTemp[100];
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < classNum; i++)
 	{
 		if (!classer[i].empty())
 		{
@@ -572,12 +577,18 @@ void Caffe_Net::process(Mat cv_image){
 		//select roi 
 		cv::Rect roi(x_start, y_start, cv_image.cols, cv_image.rows);
 		temp_mean = temp_mean(roi);
+		
+		//add this ........
+		std::vector<cv::Mat> rgbChannels(3);
+		split(temp_mean, rgbChannels);
+		cv::merge(std::vector < cv::Mat >(3,rgbChannels[2]), temp_mean);
+		
 		temp_mean.convertTo(temp_mean, CV_32FC3);
 		subtract(img_float, temp_mean, cv_new);
 	}
 	Mat cv_resized;
 	cv::resize(cv_new, cv_resized, Size(net_input_image_size_.width, net_input_image_size_.height));
-	cvtColor(cv_resized, cv_resized, CV_BGR2RGB);//add or not add is a question
+	//cvtColor(cv_resized, cv_resized, CV_BGR2RGB); matlab is rgb opencv is bgr
 
 	Blob<float>* input_layers = rpn_net_->input_blobs()[0];
 	input_layers->Reshape(1, cv_resized.channels(), cv_resized.rows, cv_resized.cols);
