@@ -9,13 +9,14 @@
 and all of the source file and cu file in /src/caffe/ to libcaffe project and rebuild it;Specifically,See: http://www.cnblogs.com/LaplaceAkuir/p/6445189.html
  
 # Result
-  it's a little different from the matlab version .and it cost much time,
-In My compute(GTX760 GPU) a picture of size(375*500*3) cost 246ms .
+  it's a little different from the matlab version .and it cost much time. 
+  
+In My compute(GTX760 GPU) a picture of size(375\*500\*3)cost 246ms .
+![image](https://github.com/zhanglaplace/Faster_rcnn_Cplusplus_vs2013/blob/master/imgs/result_004545.jpg)
+![image](https://github.com/zhanglaplace/Faster_rcnn_Cplusplus_vs2013/blob/master/imgs/result_001150.jpg)
 ![image](https://github.com/zhanglaplace/Faster_rcnn_Cplusplus_vs2013/blob/master/imgs/result_000456.jpg)
 ![image](https://github.com/zhanglaplace/Faster_rcnn_Cplusplus_vs2013/blob/master/imgs/result_000542.jpg)
-![image](https://github.com/zhanglaplace/Faster_rcnn_Cplusplus_vs2013/blob/master/imgs/result_001150.jpg)
 ![image](https://github.com/zhanglaplace/Faster_rcnn_Cplusplus_vs2013/blob/master/imgs/result_001763.jpg)
-![image](https://github.com/zhanglaplace/Faster_rcnn_Cplusplus_vs2013/blob/master/imgs/result_004545.jpg)
 
 # Mean_images
   mean_images is converte from the model.mat in matlab . you can save the mean_image by command imwrite(uint8(proposal_detection_model.image_means),'mean_image.bmp') 
