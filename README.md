@@ -1,16 +1,12 @@
-# faster-rcnn-cplusplus
-faster-rcnn cplusplus in windows with visual studio 2013
-the project is according to the http://blog.csdn.net/oYangZi12/article/details/53290426?locationNum=5&fps=1
+# Faster-Rcnn-cplusplus
+  Faster-rcnn cplusplus in windows with visual studio 2013 the project is according to the http://blog.csdn.net/oYangZi12/article/details/53290426?locationNum=5&fps=1
 
-# platform
-  You need a VC compiler to build these project, Visual Studio 2013 Community should be fine. You can 
-download from https://www.visualstudio.com/downloads/.
+# Platform
+  You need a VC compiler to build these project, Visual Studio 2013 Community should be fine. You can download from https://www.visualstudio.com/downloads/.
 
 # Caffe 
-  i use the Microsoft version , ![https://github.com/Microsoft/caffe](https://github.com/Microsoft/caffe) . if you want to use the faster-rcnn  
-you need to add some others file to libcaffe project , in fact ,i add all of the head file in /include/caffe/
-and all of the source file and cu file in /src/caffe/ to libcaffe project and rebuild it;
-Specifically,See: http://www.cnblogs.com/LaplaceAkuir/p/6445189.html
+  i use the Microsoft version , ![https://github.com/Microsoft/caffe](https://github.com/Microsoft/caffe) . if you want to use the faster-rcnn you need to add some others file to libcaffe project , in fact ,i add all of the head file in /include/caffe/
+and all of the source file and cu file in /src/caffe/ to libcaffe project and rebuild it;Specifically,See: http://www.cnblogs.com/LaplaceAkuir/p/6445189.html
  
 # Result
   it's a little different from the matlab version .and it cost much time,
