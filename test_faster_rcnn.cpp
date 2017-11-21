@@ -21,11 +21,14 @@ int main(){
 	ifstream fin("testImage.txt",std::ios_base::in);
 	string lines;
 	while(getline(fin,lines)){
+		cout<<lines<<endl;
 		Mat img = imread(lines.c_str());
 		if (img.empty()){
 			cout << "input image error;"<<lines<<endl;
 			continue;
 		}
+		imshow("ori",img);
+		cvWaitKey(0);
 		Mat dst = net_.fasterrcnn(img);
 		imshow("result", dst);
 		cvWaitKey(0);
