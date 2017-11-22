@@ -139,10 +139,10 @@ std::map<int, vector<aboxes> > Caffe_Net::fcnn_detect(vector<aboxes>&box){
 		vector<int> vPick(box.size());
 		int nPick;
 		nms(output_box, conf.num_overlap_thres_fcnn, vPick, nPick);
-		for (int i = 0; i < nPick; i++)
+		for (int k = 0; k < nPick; k++)
 		{
-			if (output_box[vPick[i]].score > conf.test_fcnn_thres_score){
-				final_box.push_back(output_box[vPick[i]]);
+			if (output_box[vPick[k]].score > conf.test_fcnn_thres_score){
+				final_box.push_back(output_box[vPick[k]]);
 			}
 		}
 		classer.insert(std::pair<int, vector<aboxes>>(i, final_box));
