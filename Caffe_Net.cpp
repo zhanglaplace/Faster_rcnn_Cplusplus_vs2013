@@ -156,7 +156,7 @@ std::map<int, vector<aboxes> > Caffe_Net::fcnn_detect(vector<aboxes>&box){
 			{
 				aboxes test = *ite;
 				rectangle(src_image, Rect(test.x1, test.y1, test.x2 - test.x1 + 1, test.y2 - test.y1 + 1), colortable[i], 2 + test.score * 2, 4, 0);
-				sprintf_s(strTemp, "%s:%.3f", classname[i], test.score);
+				sprintf(strTemp, "%s:%.3f", classname[i].c_str(), test.score);
 				putText(src_image, strTemp, Point(test.x1 + 2, min((int)test.y1 + 2, src_image.rows - 1)), FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(0, 0, 0)/*colortable[i]*/, 1, 2);
 			}
 		}
