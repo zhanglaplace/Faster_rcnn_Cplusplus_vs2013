@@ -1,6 +1,8 @@
 # Faster-Rcnn-cplusplus
   Faster-rcnn cplusplus in windows with visual studio 2013 the project is according to the http://blog.csdn.net/oYangZi12/article/details/53290426?locationNum=5&fps=1
 
+  you can test with python model according https://github.com/zhanglaplace/faster-rcnn-cplusplus2
+  
 # Platform
   You need a VC compiler to build these project, Visual Studio 2013 Community should be fine. You can download from https://www.visualstudio.com/downloads/.
 
